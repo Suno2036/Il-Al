@@ -200,10 +200,18 @@
         } 
         /* @keyframes main-content-fade-in удален, так как используется transition */
 
-        /* Стили модального окна разрешения музыки */
-        #music-permission-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; z-index: 1001; opacity: 1; transition: opacity 0.5s ease-out; }
-        #music-permission-modal.hidden { opacity: 0; pointer-events: none; }
-        .modal-content { background-color: #FFFFFF; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); max-width: 500px; margin: 20px; transform: scale(0.9); animation: modal-appear 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        /* Стили модальных окон разрешения музыки и выбора WhatsApp */
+        #music-permission-modal, #whatsapp-selection-modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; 
+            z-index: 1001; opacity: 1; transition: opacity 0.5s ease-out; 
+        }
+        #music-permission-modal.hidden, #whatsapp-selection-modal.hidden { opacity: 0; pointer-events: none; }
+        .modal-content { 
+            background-color: #FFFFFF; padding: 40px; border-radius: 15px; text-align: center; 
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); max-width: 500px; margin: 20px; 
+            transform: scale(0.9); animation: modal-appear 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+        }
         @keyframes modal-appear { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .modal-content h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #FF69B4; margin-bottom: 20px; } /* Розовый */
         .modal-content p { font-size: 1.1rem; color: #555555; margin-bottom: 30px; }
@@ -445,6 +453,19 @@
             </div>
         </div>
     </div>
+
+    <div id="whatsapp-selection-modal" class="hidden">
+        <div class="modal-content">
+            <h2>Кому отправить ответ?</h2>
+            <p>Выберите, кому из нас отправить Ваше подтверждение присутствия:</p>
+            <div class="modal-buttons">
+                <button id="send-to-ilya-btn" class="modal-button yes">Отправить Илье</button>
+                <button id="send-to-alina-btn" class="modal-button yes">Отправить Алине</button>
+            </div>
+            <button id="close-whatsapp-modal-btn" class="modal-button no mt-4">Отмена</button>
+        </div>
+    </div>
+
 
     <div id="waltz-overlay" class="waltz-overlay hidden">
         <div class="dancer dancer-ilya" id="dancer-ilya">
@@ -744,6 +765,13 @@
     // Отправка формы RSVP в WhatsApp
     const rsvpForm = document.getElementById('rsvpForm');
     const rsvpMessageDisplay = document.getElementById('rsvp-message-display');
+    const whatsappSelectionModal = document.getElementById('whatsapp-selection-modal');
+    const sendToIlyaBtn = document.getElementById('send-to-ilya-btn');
+    const sendToAlinaBtn = document.getElementById('send-to-alina-btn');
+    const closeWhatsappModalBtn = document.getElementById('close-whatsapp-modal-btn');
+
+    const ilyaNumber = '79258001376';
+    const alinaNumber = '79670978099';
 
     if (rsvpForm) {
         rsvpForm.addEventListener('submit', function(e) {
@@ -764,39 +792,55 @@
                 return;
             }
 
-            const greeting = getMoscowGreeting(); // Получаем приветствие
-            let whatsappMessage = `${greeting}! Это ${fullName}.\n\n`;
+            // Показать модальное окно выбора WhatsApp контакта
+            showWhatsAppSelectionModal(fullName, attendanceStatus, guestMessage);
+        });
+    }
+
+    function showWhatsAppSelectionModal(fullName, attendanceStatus, guestMessage) {
+        if (whatsappSelectionModal) {
+            whatsappSelectionModal.classList.remove('hidden');
+
+            const greeting = getMoscowGreeting();
+            let whatsappMessageBase = `${greeting}! Это ${fullName}.\n\n`;
             
             if (attendanceStatus === 'yes') {
-                whatsappMessage += `Статус присутствия на свадьбе 28 августа 2025: С удовольствием приду!\n\n`;
+                whatsappMessageBase += `Статус присутствия на свадьбе 28 августа 2025: С удовольствием приду!\n\n`;
                 if (guestMessage) {
-                    whatsappMessage += `Мое пожелание/сообщение: ${guestMessage}`;
+                    whatsappMessageBase += `Мое пожелание/сообщение: ${guestMessage}`;
                 } else {
-                    whatsappMessage += `С нетерпением ждем встречи!`; // Добавляем только если придет
+                    whatsappMessageBase += `С нетерпением ждем встречи!`;
                 }
             } else { // attendanceStatus === 'no'
-                whatsappMessage += `Статус присутствия на свадьбе 28 августа 2025: К сожалению, не смогу прийти.`;
+                whatsappMessageBase += `Статус присутствия на свадьбе 28 августа 2025: К сожалению, не смогу прийти.`;
                 if (guestMessage) {
-                    whatsappMessage += `\n\nМое сообщение: ${guestMessage}`; // Добавляем сообщение, если есть
+                    whatsappMessageBase += `\n\nМое сообщение: ${guestMessage}`;
                 }
-                // Строка "С нетерпением ждем встречи!" не добавляется при отказе
             }
-            
-            const whatsappNumber = '79670978099'; // Без + и пробелов
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-            
-            window.open(whatsappUrl, '_blank');
 
-            if (rsvpMessageDisplay) {
-                rsvpMessageDisplay.textContent = 'Спасибо! Ваш ответ формируется для отправки в WhatsApp.';
-                rsvpMessageDisplay.classList.remove('hidden');
-                rsvpMessageDisplay.classList.remove('text-green-400');
-                rsvpMessageDisplay.classList.add('text-blue-400');
-                 setTimeout(() => {
-                    rsvpMessageDisplay.classList.add('hidden');
-                }, 5000);
-            }
-        });
+            // Очистить предыдущие обработчики событий, чтобы избежать дублирования
+            sendToIlyaBtn.onclick = null;
+            sendToAlinaBtn.onclick = null;
+            closeWhatsappModalBtn.onclick = null;
+
+            sendToIlyaBtn.addEventListener('click', () => {
+                const whatsappUrl = `https://wa.me/${ilyaNumber}?text=${encodeURIComponent(whatsappMessageBase)}`;
+                window.open(whatsappUrl, '_blank');
+                whatsappSelectionModal.classList.add('hidden');
+                displayCustomMessage('Ваш ответ формируется для отправки Илье в WhatsApp.', 'success');
+            });
+
+            sendToAlinaBtn.addEventListener('click', () => {
+                const whatsappUrl = `https://wa.me/${alinaNumber}?text=${encodeURIComponent(whatsappMessageBase)}`;
+                window.open(whatsappUrl, '_blank');
+                whatsappSelectionModal.classList.add('hidden');
+                displayCustomMessage('Ваш ответ формируется для отправки Алине в WhatsApp.', 'success');
+            });
+
+            closeWhatsappModalBtn.addEventListener('click', () => {
+                whatsappSelectionModal.classList.add('hidden');
+            });
+        }
     }
 
     // Функция для отображения кастомных сообщений (вместо alert)
