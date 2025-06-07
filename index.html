@@ -183,7 +183,7 @@
         /* Анимация появления и масштабирования (переиспользуется для логотипа) */
         @keyframes fadeInScale {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
         }
 
         /* Анимация появления с небольшим сдвигом вверх для даты */
@@ -243,6 +243,10 @@
         .modal-button.yes:hover { background-color: #FF4F9E; transform: translateY(-3px); box-shadow: 0 8px 20px (0, 0, 0, 0.2); }
         .modal-button.no { background-color: #E0E0E0; color: #333333; }
         .modal-button.no:hover { background-color: #CCCCCC; transform: translateY(-3px); box-shadow: 0 8px 20px (0, 0, 0, 0.2); }
+        .animated-modal-content {
+             transform: scale(0.9); opacity: 0;
+             animation: modal-appear 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
 
         /* Стили календаря */
         .calendar-container { max-width: 400px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
@@ -553,7 +557,7 @@
     </section>
 
     <section id="program" class="relative py-20 md:py-32 section-bg-light overflow-hidden">
-        <div class="container mx-auto px-4 max-w-3xl relative z-10 text-center">
+        <div class="container mx-auto px-4 max-w-3xl relative z-10  text-center">
             <h2 class="font-playfair-display text-5xl md:text-6xl mb-12 text-FF69B4 animate-elegant-reveal">ПРОГРАММА ДНЯ</h2>
             
             <!-- Блок для ЗАГСа -->
@@ -719,7 +723,7 @@
     if (musicToggle && backgroundMusic && musicIcon) {
         musicToggle.addEventListener('click', () => {
             if (isPlaying) {
-                backgroundMusic.pause(); musicIcon.textContent = '�';
+                backgroundMusic.pause(); musicIcon.textContent = '🔇';
             } else {
                 backgroundMusic.play().catch(e => console.error("Error playing music:", e));
                 musicIcon.textContent = '🎵';
@@ -1061,100 +1065,6 @@
         }, 1000);
     }
 
-    // --- Календарные функции ---
-
-    // Форматирование даты для ICS (YYYYMMDDTHHMMSS)
-    // Обратите внимание: для ICS лучше использовать UTC-время (DTSTART;TZID=Europe/Moscow:20250828T170000), 
-    // но для простоты и широкой совместимости с мобильными календарями, 
-    // используем местное время без часового пояса в DTSTART/DTEND, 
-    // что обычно корректно интерпретируется на устройстве пользователя.
-    function formatDateForICS(dateObj, timeStr) {
-        const [hours, minutes] = timeStr.split(':').map(Number);
-        dateObj.setHours(hours, minutes, 0, 0); 
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        const hour = String(dateObj.getHours()).padStart(2, '0');
-        const minute = String(dateObj.getMinutes()).padStart(2, '0');
-        const second = String(dateObj.getSeconds()).padStart(2, '0');
-        return `${year}${month}${day}T${hour}${minute}${second}`;
-    }
-
-    // Создание ссылки для Google Calendar
-    function createGoogleCalendarLink(title, location, description, startDateStr, startTimeStr, endDateStr, endTimeStr) {
-        const start = formatDateForICS(new Date(startDateStr), startTimeStr);
-        const end = formatDateForICS(new Date(endDateStr), endTimeStr); 
-
-        return `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-               `&text=${encodeURIComponent(title)}` +
-               `&dates=${start}/${end}` +
-               `&details=${encodeURIComponent(description)}` +
-               `&location=${encodeURIComponent(location)}`;
-    }
-
-    // Создание ICS файла для Outlook/Apple Calendar
-    function createICSFile(title, location, description, startDateStr, startTimeStr, endDateStr, endTimeStr) {
-        const start = formatDateForICS(new Date(startDateStr), startTimeStr);
-        const end = formatDateForICS(new Date(endDateStr), endTimeStr);
-
-        const icsContent = [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
-            'PRODID:-//YourWeddingInvite//InvitationApp//EN',
-            'BEGIN:VEVENT',
-            `UID:${new Date().getTime()}@yourdomain.com`, // Уникальный ID
-            `DTSTAMP:${formatDateForICS(new Date(), new Date().toTimeString().split(' ')[0])}`, // Время создания записи
-            `DTSTART:${start}`,
-            `DTEND:${end}`,
-            `SUMMARY:${title}`,
-            `DESCRIPTION:${description}`,
-            `LOCATION:${location}`,
-            'END:VEVENT',
-            'END:VCALENDAR'
-        ].join('\r\n');
-
-        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-        return URL.createObjectURL(blob);
-    }
-
-    // Функция для автоматического добавления в календарь
-    function addToCalendarAutomatically() {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) || (userAgent.includes("Mac") && "ontouchend" in document); 
-        const isAndroid = /android/i.test(userAgent);
-        const isDesktop = !isIOS && !isAndroid; // Простая эвристика для определения настольного ПК
-
-        // Общие данные для события календаря
-        const eventTitle = 'Свадьба Ильи и Алины';
-        const eventDescription = `Приглашаем на свадьбу Ильи и Алины! \n\n Официальная церемония: ${ZAGS_LOCATION} (${ZAGS_TIME_STR}) \n Церемония и банкет: ${BANQUET_LOCATION} (${BANQUET_TIME_STR})`;
-        const eventLocation = `${ZAGS_LOCATION} и ${BANQUET_LOCATION}`;
-
-        // Время начала первого события (ЗАГС) и окончания последнего (банкет)
-        const startEventTime = ZAGS_TIME_STR; 
-        const endEventTime = '23:00'; // Условно до конца вечера
-
-        if (isIOS || isAndroid) { // Для iOS и Android используем ICS файл
-            const icsUrl = createICSFile(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime); 
-            const link = document.createElement('a');
-            link.href = icsUrl;
-            link.download = 'Свадьба_Илья_Алина.ics';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            displayCustomMessage('Событие добавлено в Ваш календарь (файл .ics).', 'success');
-        } else if (isDesktop) { // Для настольных ПК используем Google Календарь
-            const googleLink = createGoogleCalendarLink(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime);
-            window.open(googleLink, '_blank');
-            displayCustomMessage('Событие добавлено в Ваш Google Календарь.', 'success');
-        } else {
-            // Запасной вариант для неопределенных устройств
-            console.warn("Не удалось определить тип устройства для добавления в календарь. Попробуйте Google Календарь.");
-            const googleLink = createGoogleCalendarLink(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime);
-            window.open(googleLink, '_blank');
-            displayCustomMessage('Попробуйте добавить событие в Google Календарь.', 'info');
-        }
-    }
-
 
     // DOMContentLoaded - запускается после загрузки DOM
     document.addEventListener('DOMContentLoaded', () => {
@@ -1205,11 +1115,59 @@
             animateOnScroll(); // Также запустить анимации при прокрутке
         }
 
-        // Новая кнопка "Добавить в календарь"
-        const addToCalendarAutoBtn = document.getElementById('add-to-calendar-auto');
-        if (addToCalendarAutoBtn) {
-            addToCalendarAutoBtn.addEventListener('click', addToCalendarAutomatically);
+        // [ОБНОВЛЕНО] Кнопка "Добавить в календарь" 
+        const addToCalendarAutoBtn = document.getElementById("add-to-calendar-auto");
+        if(addToCalendarAutoBtn) {
+            addToCalendarAutoBtn.addEventListener("click", function() {
+                const title = 'Свадьба Ильи и Алины';
+                // Для Google Calendar можно использовать обычные переносы
+                const descriptionForGoogle = 'Официальная церемония в ЗАГСе (15:10) и банкет (17:00).\n\nМосква, Бутырская ул., 17 и МО Дмитровский район, СНТ Плес дом 95';
+                // Важно: для .ics файла переносы строк должны быть \\n
+                const descriptionForIcs = descriptionForGoogle.replace(/\n/g, '\\n');
+                const location = 'Москва, Бутырская ул., 17 и МО Дмитровский район, СНТ Плес дом 95';
+                const startDate = '20250828T151000';
+                const endDate = '20250828T230000';
+
+                const userAgent = navigator.userAgent.toLowerCase();
+                const isIOS = /iphone|ipad|ipod/.test(userAgent);
+
+                if (isIOS) {
+                    const icsContent = [
+                        'BEGIN:VCALENDAR',
+                        'VERSION:2.0',
+                        'PRODID:-//YourWedding//Invitation//EN',
+                        'BEGIN:VEVENT',
+                        `UID:${new Date().getTime()}@example.com`,
+                        `SUMMARY:${title}`,
+                        `DESCRIPTION:${descriptionForIcs}`,
+                        `LOCATION:${location}`,
+                        `DTSTART;TZID=Europe/Moscow:${startDate}`,
+                        `DTEND;TZID=Europe/Moscow:${endDate}`,
+                        'END:VEVENT',
+                        'END:VCALENDAR'
+                    ].join('\n');
+                    
+                    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'Свадьба_Ильи_и_Алины.ics';
+                    document.body.appendChild(a);
+                    a.click();
+                    // Очистка после скачивания
+                    setTimeout(() => {
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    }, 0);
+
+                } else { // Для Android и компьютеров
+                    const googleLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(descriptionForGoogle)}&location=${encodeURIComponent(location)}&dates=${startDate}/${endDate}&ctz=Europe/Moscow`;
+                    window.open(googleLink, '_blank');
+                }
+            });
         }
+
 
         // Обработчики кнопок "Как добраться?" для Яндекс Карт
         const routeToZAGSBtn = document.getElementById('route-to-zags');
