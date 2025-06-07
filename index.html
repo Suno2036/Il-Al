@@ -719,7 +719,7 @@
     if (musicToggle && backgroundMusic && musicIcon) {
         musicToggle.addEventListener('click', () => {
             if (isPlaying) {
-                backgroundMusic.pause(); musicIcon.textContent = '🔇';
+                backgroundMusic.pause(); musicIcon.textContent = '�';
             } else {
                 backgroundMusic.play().catch(e => console.error("Error playing music:", e));
                 musicIcon.textContent = '🎵';
@@ -1063,14 +1063,14 @@
 
     // --- Календарные функции ---
 
-    // Форматирование даты для ICS (YYYYMMDDTHHMMSSZ)
+    // Форматирование даты для ICS (YYYYMMDDTHHMMSS)
+    // Обратите внимание: для ICS лучше использовать UTC-время (DTSTART;TZID=Europe/Moscow:20250828T170000), 
+    // но для простоты и широкой совместимости с мобильными календарями, 
+    // используем местное время без часового пояса в DTSTART/DTEND, 
+    // что обычно корректно интерпретируется на устройстве пользователя.
     function formatDateForICS(dateObj, timeStr) {
         const [hours, minutes] = timeStr.split(':').map(Number);
-        dateObj.setHours(hours, minutes, 0, 0); // Устанавливаем время
-        // Для ICS лучше использовать UTC, но для простоты и совместимости с Outlook/Apple
-        // можно использовать местное время и добавить 'Z' в конце (не совсем корректно,
-        // но часто работает) или просто без 'Z' для местного.
-        // Здесь используем local time without 'Z' for simplicity.
+        dateObj.setHours(hours, minutes, 0, 0); 
         const year = dateObj.getFullYear();
         const month = String(dateObj.getMonth() + 1).padStart(2, '0');
         const day = String(dateObj.getDate()).padStart(2, '0');
@@ -1120,8 +1120,9 @@
     // Функция для автоматического добавления в календарь
     function addToCalendarAutomatically() {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) || (userAgent.includes("Mac") && "ontouchend" in document); // Check for iOS/iPadOS/macOS with touch
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) || (userAgent.includes("Mac") && "ontouchend" in document); 
         const isAndroid = /android/i.test(userAgent);
+        const isDesktop = !isIOS && !isAndroid; // Простая эвристика для определения настольного ПК
 
         // Общие данные для события календаря
         const eventTitle = 'Свадьба Ильи и Алины';
@@ -1129,11 +1130,10 @@
         const eventLocation = `${ZAGS_LOCATION} и ${BANQUET_LOCATION}`;
 
         // Время начала первого события (ЗАГС) и окончания последнего (банкет)
-        const startEventTime = ZAGS_TIME_STR; // Начало ЗАГСа
+        const startEventTime = ZAGS_TIME_STR; 
         const endEventTime = '23:00'; // Условно до конца вечера
 
-        if (isIOS) {
-            // Для iOS и macOS (Safari), лучше всего работает ICS файл
+        if (isIOS || isAndroid) { // Для iOS и Android используем ICS файл
             const icsUrl = createICSFile(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime); 
             const link = document.createElement('a');
             link.href = icsUrl;
@@ -1142,11 +1142,16 @@
             link.click();
             document.body.removeChild(link);
             displayCustomMessage('Событие добавлено в Ваш календарь (файл .ics).', 'success');
-        } else {
-            // Для Android, Windows, Linux и других, Google Calendar - наиболее универсальный вариант
+        } else if (isDesktop) { // Для настольных ПК используем Google Календарь
             const googleLink = createGoogleCalendarLink(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime);
             window.open(googleLink, '_blank');
             displayCustomMessage('Событие добавлено в Ваш Google Календарь.', 'success');
+        } else {
+            // Запасной вариант для неопределенных устройств
+            console.warn("Не удалось определить тип устройства для добавления в календарь. Попробуйте Google Календарь.");
+            const googleLink = createGoogleCalendarLink(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime);
+            window.open(googleLink, '_blank');
+            displayCustomMessage('Попробуйте добавить событие в Google Календарь.', 'info');
         }
     }
 
