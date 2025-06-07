@@ -212,6 +212,28 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); max-width: 500px; margin: 20px; 
             transform: scale(0.9); animation: modal-appear 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); 
         }
+        /* Адаптивность для модальных окон */
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 20px; /* Меньшие отступы на мобильных */
+                margin: 10px; /* Меньшие поля вокруг модального окна */
+                max-width: 90%; /* Более узкое модальное окно */
+            }
+            .modal-content h2 {
+                font-size: 2rem; /* Меньший заголовок */
+            }
+            .modal-content p {
+                font-size: 0.95rem; /* Меньший текст */
+            }
+            .modal-buttons {
+                flex-direction: column; /* Кнопки в столбец */
+                gap: 10px; /* Меньший отступ между кнопками */
+            }
+            .modal-button {
+                padding: 12px 20px; /* Меньшие кнопки */
+            }
+        }
+
         @keyframes modal-appear { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .modal-content h2 { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #FF69B4; margin-bottom: 20px; } /* Розовый */
         .modal-content p { font-size: 1.1rem; color: #555555; margin-bottom: 30px; }
@@ -245,7 +267,7 @@
         .program-item {
             margin-bottom: 4rem; /* Увеличил отступ между элементами программы */
         }
-        .program-icon { font-size: 4rem; color: #FF69B4; margin-bottom: 1rem; } /* Розовый */
+        .program-icon-heart { font-size: 4rem; color: #FF69B4; margin-bottom: 1rem; } /* Розовый */
         /* Стили для SVG иконки кольца */
         .program-icon.ring-svg {
             width: 4rem; /* Соответствует font-size 4rem */
@@ -454,6 +476,7 @@
         </div>
     </div>
 
+    <!-- Модальное окно для выбора WhatsApp контакта -->
     <div id="whatsapp-selection-modal" class="hidden">
         <div class="modal-content">
             <h2>Кому отправить ответ?</h2>
@@ -517,11 +540,25 @@
         </div>
     </section>
 
-    <section id="program" class="relative py-20 md:py-32 section-bg-dark overflow-hidden">
+    <section id="save-the-date" class="relative py-20 md:py-24 section-bg-dark overflow-hidden">
+        <div class="container mx-auto px-4 max-w-3xl relative z-10 text-center">
+            <h2 class="font-playfair-display text-4xl md:text-5xl mb-8 text-FF69B4 animate-elegant-reveal">СОХРАНИТЕ ДАТУ!</h2>
+            <p class="font-raleway text-lg md:text-xl text-gray-700 mb-8 leading-relaxed animate-elegant-reveal stagger-fade-up" style="transition-delay: 0.1s;">
+                Добавьте информацию о нашей свадьбе в свой календарь, чтобы ничего не пропустить:
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 animate-elegant-reveal stagger-fade-up" style="transition-delay: 0.2s;">
+                <button id="add-to-calendar-auto" class="btn-primary text-base px-6 py-3">Добавить в календарь</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="program" class="relative py-20 md:py-32 section-bg-light overflow-hidden">
         <div class="container mx-auto px-4 max-w-3xl relative z-10 text-center">
             <h2 class="font-playfair-display text-5xl md:text-6xl mb-12 text-FF69B4 animate-elegant-reveal">ПРОГРАММА ДНЯ</h2>
             
+            <!-- Блок для ЗАГСа -->
             <div class="program-item animate-elegant-reveal stagger-fade-up" style="transition-delay: 0.1s;">
+                <!-- SVG иконка одного обручального кольца -->
                 <svg class="program-icon ring-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="8" fill="none" stroke="#FF69B4" stroke-width="1.5"/>
                 </svg>
@@ -529,18 +566,19 @@
                 <div class="program-event-desc">Официальная церемония в ЗАГСе</div>
                 <div class="program-venue">Дворец бракосочетания № 4</div>
                 <div class="program-address">Бутырская ул., 17, Москва</div>
-                <a href="https://yandex.ru/maps/-/CHGFIJm5" target="_blank" class="inline-block btn-primary text-lg mt-4">
+                <a href="#" id="route-to-zags" class="inline-block btn-primary text-lg mt-4">
                     Как добраться до ЗАГСа?
                 </a>
             </div>
 
+            <!-- Блок для Церемонии и Банкета -->
             <div class="program-item animate-elegant-reveal stagger-fade-up" style="transition-delay: 0.2s;">
-                <i class="fas fa-heart program-icon"></i>
+                <i class="fas fa-heart program-icon-heart"></i>
                 <div class="program-time">- 17:00 -</div>
-                <div class="program-event-desc">начало вечера</div>
+                <div class="program-event-desc">Церемония бракосочетания и начало вечера</div>
                 <div class="program-venue">Загородный комплекс «В плесе»</div>
                 <div class="program-address">МО Дмитровский район, СНТ Плес дом 95</div>
-                <a href="https://yandex.ru/maps/?pt=37.538161,56.188954&z=16&l=map" target="_blank" class="inline-block btn-primary text-lg mt-4">
+                <a href="#" id="route-to-banquet" class="inline-block btn-primary text-lg mt-4">
                     Как добраться до банкета?
                 </a>
             </div>
@@ -548,7 +586,7 @@
         </div>
     </section>
 
-    <section id="details" class="relative py-20 md:py-32 section-bg-light overflow-hidden">
+    <section id="details" class="relative py-20 md:py-32 section-bg-dark overflow-hidden">
         <div class="container mx-auto px-4 max-w-3xl relative z-10">
             <h2 class="font-playfair-display text-5xl md:text-6xl text-center mb-12 text-FF69B4 animate-elegant-reveal">ВАЖНЫЕ ДЕТАЛИ</h2>
             <div class="decorative-line animate-elegant-reveal" style="transition-delay: 0.1s;"></div>
@@ -566,7 +604,7 @@
         </div>
     </section>
 
-    <section id="rsvp" class="relative py-20 md:py-32 section-bg-dark overflow-hidden">
+    <section id="rsvp" class="relative py-20 md:py-32 section-bg-light overflow-hidden">
         <div class="container mx-auto px-4 max-w-3xl relative z-10">
             <h2 class="font-playfair-display text-5xl md:text-6xl text-center mb-12 text-FF69B4 animate-elegant-reveal">ПОДТВЕРДИТЕ ВАШЕ ПРИСУТСТВИЕ</h2>
             <div class="decorative-line bg-FF69B4 animate-elegant-reveal" style="transition-delay: 0.1s;"></div>
@@ -632,6 +670,17 @@
     </footer>
 
     <script>
+    // Constants for event details
+    const WEDDING_DATE_STR = '2025-08-28';
+    const ZAGS_TIME_STR = '15:10';
+    const BANQUET_TIME_STR = '17:00';
+    const ZAGS_LOCATION = 'Бутырская ул., 17, Москва';
+    const BANQUET_LOCATION = 'МО Дмитровский район, СНТ Плес дом 95';
+
+    // Coordinates for Yandex Maps (ZAGS: 55.797275, 37.575043 | Banquet: 56.188954, 37.538161)
+    const ZAGS_COORDS = [55.797275, 37.575043];
+    const BANQUET_COORDS = [56.188954, 37.538161];
+
     // Плавная прокрутка
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -712,7 +761,7 @@
     }
 
 
-    // Инициализация Яндекс.Карты
+    // Инициализация Яндекс.Карты с двумя метками
     function initYandexMap() {
         if (typeof ymaps === 'undefined' || !document.getElementById('yandex-map')) {
             console.warn('Yandex Maps API not loaded or map container not found.');
@@ -726,19 +775,35 @@
         }
         ymaps.ready(function () {
             var myMap = new ymaps.Map("yandex-map", {
-                center: [56.188954, 37.538161], // Обновленные координаты для СНТ Плес дом 95
-                zoom: 15,
+                center: [55.9931, 37.5500], // Центр между двумя точками, или можно динамически подогнать
+                zoom: 10, // Общий зум для двух точек
                 controls: ['zoomControl', 'fullscreenControl']
             });
 
-            var myPlacemark = new ymaps.Placemark([56.188954, 37.538161], {
-                balloonContentHeader: 'Загородный комплекс «В плесе»', // Обновлено название
-                balloonContentBody: 'Место проведения нашей свадьбы!',
-                hintContent: 'Свадьба здесь!'
+            // Метка для ЗАГСа
+            var zagsPlacemark = new ymaps.Placemark(ZAGS_COORDS, {
+                balloonContentHeader: 'Дворец бракосочетания № 4',
+                balloonContentBody: 'Официальная церемония',
+                hintContent: 'ЗАГС'
             }, {
-                preset: 'islands#redElegantIcon' // Стильная красная метка
+                preset: 'islands#pinkDotIcon' // Розовая метка
             });
-            myMap.geoObjects.add(myPlacemark);
+            myMap.geoObjects.add(zagsPlacemark);
+
+            // Метка для Банкета
+            var banquetPlacemark = new ymaps.Placemark(BANQUET_COORDS, {
+                balloonContentHeader: 'Загородный комплекс «В плесе»',
+                balloonContentBody: 'Церемония бракосочетания и начало вечера',
+                hintContent: 'Место банкета'
+            }, {
+                preset: 'islands#redDotIcon' // Красная метка (можно поменять на другой розовый)
+            });
+            myMap.geoObjects.add(banquetPlacemark);
+
+            // Автоматически центрировать и масштабировать карту, чтобы показать обе метки
+            myMap.setBounds(myMap.geoObjects.getBounds(), {checkZoomRange: true}).then(function(){
+                if(myMap.getZoom() > 14) myMap.setZoom(14); // Ограничить максимальный зум, чтобы было видно окружение
+            });
         });
     }
     
@@ -860,6 +925,8 @@
             z-index: 10000;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
+            max-width: 80%; /* Адаптивность */
+            text-align: center;
         `;
         document.body.appendChild(messageDiv);
 
@@ -994,6 +1061,95 @@
         }, 1000);
     }
 
+    // --- Календарные функции ---
+
+    // Форматирование даты для ICS (YYYYMMDDTHHMMSSZ)
+    function formatDateForICS(dateObj, timeStr) {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        dateObj.setHours(hours, minutes, 0, 0); // Устанавливаем время
+        // Для ICS лучше использовать UTC, но для простоты и совместимости с Outlook/Apple
+        // можно использовать местное время и добавить 'Z' в конце (не совсем корректно,
+        // но часто работает) или просто без 'Z' для местного.
+        // Здесь используем local time without 'Z' for simplicity.
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const hour = String(dateObj.getHours()).padStart(2, '0');
+        const minute = String(dateObj.getMinutes()).padStart(2, '0');
+        const second = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${year}${month}${day}T${hour}${minute}${second}`;
+    }
+
+    // Создание ссылки для Google Calendar
+    function createGoogleCalendarLink(title, location, description, startDateStr, startTimeStr, endDateStr, endTimeStr) {
+        const start = formatDateForICS(new Date(startDateStr), startTimeStr);
+        const end = formatDateForICS(new Date(endDateStr), endTimeStr); 
+
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+               `&text=${encodeURIComponent(title)}` +
+               `&dates=${start}/${end}` +
+               `&details=${encodeURIComponent(description)}` +
+               `&location=${encodeURIComponent(location)}`;
+    }
+
+    // Создание ICS файла для Outlook/Apple Calendar
+    function createICSFile(title, location, description, startDateStr, startTimeStr, endDateStr, endTimeStr) {
+        const start = formatDateForICS(new Date(startDateStr), startTimeStr);
+        const end = formatDateForICS(new Date(endDateStr), endTimeStr);
+
+        const icsContent = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//YourWeddingInvite//InvitationApp//EN',
+            'BEGIN:VEVENT',
+            `UID:${new Date().getTime()}@yourdomain.com`, // Уникальный ID
+            `DTSTAMP:${formatDateForICS(new Date(), new Date().toTimeString().split(' ')[0])}`, // Время создания записи
+            `DTSTART:${start}`,
+            `DTEND:${end}`,
+            `SUMMARY:${title}`,
+            `DESCRIPTION:${description}`,
+            `LOCATION:${location}`,
+            'END:VEVENT',
+            'END:VCALENDAR'
+        ].join('\r\n');
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        return URL.createObjectURL(blob);
+    }
+
+    // Функция для автоматического добавления в календарь
+    function addToCalendarAutomatically() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) || (userAgent.includes("Mac") && "ontouchend" in document); // Check for iOS/iPadOS/macOS with touch
+        const isAndroid = /android/i.test(userAgent);
+
+        // Общие данные для события календаря
+        const eventTitle = 'Свадьба Ильи и Алины';
+        const eventDescription = `Приглашаем на свадьбу Ильи и Алины! \n\n Официальная церемония: ${ZAGS_LOCATION} (${ZAGS_TIME_STR}) \n Церемония и банкет: ${BANQUET_LOCATION} (${BANQUET_TIME_STR})`;
+        const eventLocation = `${ZAGS_LOCATION} и ${BANQUET_LOCATION}`;
+
+        // Время начала первого события (ЗАГС) и окончания последнего (банкет)
+        const startEventTime = ZAGS_TIME_STR; // Начало ЗАГСа
+        const endEventTime = '23:00'; // Условно до конца вечера
+
+        if (isIOS) {
+            // Для iOS и macOS (Safari), лучше всего работает ICS файл
+            const icsUrl = createICSFile(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime); 
+            const link = document.createElement('a');
+            link.href = icsUrl;
+            link.download = 'Свадьба_Илья_Алина.ics';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            displayCustomMessage('Событие добавлено в Ваш календарь (файл .ics).', 'success');
+        } else {
+            // Для Android, Windows, Linux и других, Google Calendar - наиболее универсальный вариант
+            const googleLink = createGoogleCalendarLink(eventTitle, eventLocation, eventDescription, WEDDING_DATE_STR, startEventTime, WEDDING_DATE_STR, endEventTime);
+            window.open(googleLink, '_blank');
+            displayCustomMessage('Событие добавлено в Ваш Google Календарь.', 'success');
+        }
+    }
+
 
     // DOMContentLoaded - запускается после загрузки DOM
     document.addEventListener('DOMContentLoaded', () => {
@@ -1010,7 +1166,7 @@
         if (waltzOverlay) waltzOverlay.classList.add('hidden'); // Убедиться, что он скрыт изначально
 
         generateCalendar(2025, 7);
-        initYandexMap();
+        initYandexMap(); // Инициализация карты с двумя метками
         startCountdown();
 
         // Проверить, присутствуют ли все необходимые элементы модального окна
@@ -1042,6 +1198,32 @@
                 mainCoverContent.style.transform = 'translateY(0)'; // Убедиться, что оно в конечном положении
             }
             animateOnScroll(); // Также запустить анимации при прокрутке
+        }
+
+        // Новая кнопка "Добавить в календарь"
+        const addToCalendarAutoBtn = document.getElementById('add-to-calendar-auto');
+        if (addToCalendarAutoBtn) {
+            addToCalendarAutoBtn.addEventListener('click', addToCalendarAutomatically);
+        }
+
+        // Обработчики кнопок "Как добраться?" для Яндекс Карт
+        const routeToZAGSBtn = document.getElementById('route-to-zags');
+        const routeToBanquetBtn = document.getElementById('route-to-banquet');
+
+        if (routeToZAGSBtn) {
+            routeToZAGSBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Открываем Яндекс.Карты с запросом маршрута от текущего местоположения до ЗАГСа
+                window.open(`https://yandex.ru/maps/?rtext=~${ZAGS_COORDS[0]},${ZAGS_COORDS[1]}&ll=${ZAGS_COORDS[1]},${ZAGS_COORDS[0]}&z=16`, '_blank');
+            });
+        }
+
+        if (routeToBanquetBtn) {
+            routeToBanquetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Открываем Яндекс.Карты с запросом маршрута от текущего местоположения до Банкета
+                window.open(`https://yandex.ru/maps/?rtext=~${BANQUET_COORDS[0]},${BANQUET_COORDS[1]}&ll=${BANQUET_COORDS[1]},${BANQUET_COORDS[0]}&z=16`, '_blank');
+            });
         }
     });
     </script>
