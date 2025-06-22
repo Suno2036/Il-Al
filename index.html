@@ -516,6 +516,12 @@
                 <img src="https://raw.githubusercontent.com/Suno2036/Il.Al/main/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF.svg" alt="Логотип"
                      class="w-40 sm:w-48 md:w-56 lg:w-64 h-auto mx-auto mt-4 /* Уменьшил ширину и добавил отступ сверху */" 
                      onerror="this.alt='Логотип не загрузился'; this.src='https://placehold.co/256x128/FFFFFF/333333?text=Логотип';">
+                
+                <!-- NEW SCROLL INDICATOR - Новая стрелка с надписью "Листайте вниз" -->
+                <div id="scroll-indicator" class="mt-4 text-FF69B4 opacity-0 transition-opacity duration-1000 ease-out" style="transition-delay: 0.5s;">
+                    <i class="fas fa-chevron-down animate-bounce text-2xl"></i>
+                    <p class="font-raleway text-sm font-semibold mt-1">Листайте вниз</p>
+                </div>
             </div>
         </div>
     </section>
@@ -953,6 +959,7 @@
         const largeHeartDate = document.getElementById('large-heart-date'); // Получаем элемент даты
         const mainAnimatedLogo = document.getElementById('main-animated-logo'); // Получаем элемент с логотипом
         const mainCoverContent = document.querySelector('#cover .main-cover-content');
+        const scrollIndicator = document.getElementById('scroll-indicator'); // Получаем элемент стрелки
 
         // Проверяем, что все необходимые элементы существуют
         if (!(waltzOverlay && dancerIlya && dancerAlina && largePulsingHeartContainer && largeHeartDate && mainAnimatedLogo && mainCoverContent)) {
@@ -964,12 +971,17 @@
                 mainCoverContent.style.opacity = '1';
                 mainCoverContent.style.transform = 'translateY(0)';
             }
+            // Если анимация пропущена, сразу показываем стрелку прокрутки
+            if (scrollIndicator) {
+                scrollIndicator.style.opacity = '1';
+            }
             animateOnScroll();
             return; // Выходим из функции, если элементы не найдены
         }
 
         mainCoverContent.style.opacity = '0'; 
         mainCoverContent.style.transform = 'translateY(20px)'; /* Устанавливаем начальное положение для перехода */
+        if (scrollIndicator) scrollIndicator.style.opacity = '0'; // Скрываем стрелку в начале
 
         // 1. Показать оверлей и запустить анимацию вальса двух сердец
         waltzOverlay.classList.remove('hidden');
@@ -1013,6 +1025,11 @@
             // Запускаем плавное появление основного контента
             mainCoverContent.style.opacity = '1'; 
             mainCoverContent.style.transform = 'translateY(0)';
+
+            // Показать стрелку прокрутки после появления основного контента
+            if (scrollIndicator) {
+                scrollIndicator.style.opacity = '1';
+            }
 
             // Полностью скрыть оверлей после завершения его анимации исчезновения
             setTimeout(() => {
@@ -1075,10 +1092,12 @@
         const localMusicIcon = document.getElementById('music-icon');
         const mainCoverContent = document.querySelector('#cover .main-cover-content');
         const waltzOverlay = document.getElementById('waltz-overlay');
+        const scrollIndicator = document.getElementById('scroll-indicator');
 
-        // Изначально скрыть основное содержимое обложки и оверлей вальса
+        // Изначально скрыть основное содержимое обложки, оверлей вальса и стрелку прокрутки
         if (mainCoverContent) mainCoverContent.style.opacity = '0';
         if (waltzOverlay) waltzOverlay.classList.add('hidden'); // Убедиться, что он скрыт изначально
+        if (scrollIndicator) scrollIndicator.style.opacity = '0'; // Изначально скрываем стрелку
 
         generateCalendar(2025, 7);
         initYandexMap(); // Инициализация карты с двумя метками
@@ -1111,6 +1130,10 @@
             if (mainCoverContent) {
                 mainCoverContent.style.opacity = '1'; // Сразу показать основное содержимое
                 mainCoverContent.style.transform = 'translateY(0)'; // Убедиться, что оно в конечном положении
+            }
+            // Если модальное окно пропущено, сразу показываем стрелку прокрутки
+            if (scrollIndicator) {
+                scrollIndicator.style.opacity = '1';
             }
             animateOnScroll(); // Также запустить анимации при прокрутке
         }
@@ -1182,8 +1205,8 @@
         }
 
         if (routeToBanquetBtn) {
+            e.preventDefault();
             routeToBanquetBtn.addEventListener('click', (e) => {
-                e.preventDefault();
                 // Открываем Яндекс.Карты с запросом маршрута от текущего местоположения до Банкета
                 window.open(`https://yandex.ru/maps/?rtext=~${BANQUET_COORDS[0]},${BANQUET_COORDS[1]}&ll=${BANQUET_COORDS[1]},${BANQUET_COORDS[0]}&z=16`, '_blank');
             });
